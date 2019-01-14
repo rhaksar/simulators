@@ -45,6 +45,7 @@ class Tree(Element):
 
     def reset(self):
         self.state = self.healthy
+        self.next_state = self.state
 
     def update(self):
         self.state = self.next_state
@@ -56,9 +57,8 @@ class Tree(Element):
             if self.state == self.healthy:
                 self.query_neighbors(forest)
 
-            transition_prob = self.dynamics((self.state, self.state+1),
-                                            control)
-            if np.random.rand() < transition_prob:
+            transition_p = self.dynamics((self.state, self.state+1), control)
+            if np.random.rand() < transition_p:
                 self.next_state = self.state + 1
 
     def query_neighbors(self, forest):
@@ -66,21 +66,6 @@ class Tree(Element):
                                  if any(isinstance(forest[j], t) for t in self.neighbors_types)]
 
     def dynamics(self, state_and_next_state, control):
-        # if state_and_next_state is None:
-        #     if self.model == 'linear':
-        #         return [(pair[0], pair[1], self.dynamics_linear(pair,
-        #                                                         delta_alpha,
-        #                                                         delta_beta))
-        #                 for pair in itertools.product(self.state_space,
-        #                                               self.state_space)]
-        #     elif self.model == 'exponential':
-        #         return [(pair[0], pair[1], self.dynamics_exponential(pair,
-        #                                                              delta_alpha,
-        #                                                              delta_beta))
-        #                 for pair in itertools.product(self.state_space,
-        #                                               self.state_space)]
-        #
-        # elif state_and_next_state is not None:
         if self.model == 'linear':
             return self.dynamics_linear(state_and_next_state, control)
         elif self.model == 'exponential':
@@ -124,9 +109,9 @@ class Tree(Element):
             number_neighbors_on_fire = self.neighbors_states.count(True)
 
             if next_state is self.healthy:
-                return (self.alpha - delta_alpha)**number_neighbors_on_fire
+                return (1 - self.alpha + delta_alpha)**number_neighbors_on_fire
             elif next_state is self.on_fire:
-                return 1 - (self.alpha - delta_alpha)**number_neighbors_on_fire
+                return 1 - (1 - self.alpha + delta_alpha)**number_neighbors_on_fire
             else:
                 return 0
 
@@ -144,14 +129,14 @@ class Tree(Element):
             else:
                 return 0
 
-    def is_healthy(self, state):
-        return state == self.healthy
+    def is_healthy(self, query):
+        return query == self.healthy
 
-    def is_on_fire(self, state):
-        return state == self.on_fire
+    def is_on_fire(self, query):
+        return query == self.on_fire
 
-    def is_burnt(self, state):
-        return state == self.burnt
+    def is_burnt(self, query):
+        return query == self.burnt
 
     def set_on_fire(self):
         self.state = self.on_fire
