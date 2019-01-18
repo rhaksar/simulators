@@ -1,20 +1,9 @@
 import numpy as np
+import sys
 import warnings
 
-
-class Element(object):
-    def __init__(self):
-        self.state = None
-        self.next_state = None
-
-    def reset(self):
-        raise NotImplementedError
-
-    def next(self, forest, control):
-        raise NotImplementedError
-
-    def update(self):
-        raise NotImplementedError
+sys.path.append('..')
+from Element import Element
 
 
 class Tree(Element):
@@ -46,6 +35,7 @@ class Tree(Element):
     def reset(self):
         self.state = self.healthy
         self.next_state = self.state
+        return
 
     def update(self):
         self.state = self.next_state
@@ -140,3 +130,6 @@ class Tree(Element):
 
     def set_on_fire(self):
         self.state = self.on_fire
+
+    def __repr__(self):
+        pass
