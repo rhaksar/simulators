@@ -43,10 +43,12 @@ class Tree(Element):
     def next(self, forest, control):
         self.next_state = self.state
         if self.state != self.burnt:
+            number_neighbors_on_fire = None
             if self.state == self.healthy:
                 self.query_neighbors(forest)
+                number_neighbors_on_fire = self.neighbors_states.count(True)
 
-            transition_p = self.dynamics((self.state, self.state+1), control)
+            transition_p = self.dynamics((self.state, number_neighbors_on_fire, self.state+1), control)
             if np.random.rand() < transition_p:
                 self.next_state = self.state + 1
 
@@ -62,12 +64,10 @@ class Tree(Element):
 
     def dynamics_linear(self, state_and_next_state, control):
 
-        state, next_state = state_and_next_state
+        state, number_neighbors_on_fire, next_state = state_and_next_state
         delta_alpha, delta_beta = control
 
         if state is self.healthy:
-            number_neighbors_on_fire = self.neighbors_states.count(True)
-
             if next_state is self.healthy:
                 return 1 - (self.alpha - delta_alpha)*number_neighbors_on_fire
             elif next_state is self.on_fire:
@@ -91,12 +91,10 @@ class Tree(Element):
 
     def dynamics_exponential(self, state_and_next_state, control):
 
-        state, next_state = state_and_next_state
+        state, number_neighbors_on_fire, next_state = state_and_next_state
         delta_alpha, delta_beta = control
 
         if state is self.healthy:
-            number_neighbors_on_fire = self.neighbors_states.count(True)
-
             if next_state is self.healthy:
                 return (1 - self.alpha + delta_alpha)**number_neighbors_on_fire
             elif next_state is self.on_fire:
@@ -129,6 +127,3 @@ class Tree(Element):
 
     def set_on_fire(self):
         self.state = self.on_fire
-
-    def __repr__(self):
-        pass
