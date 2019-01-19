@@ -1,9 +1,8 @@
 import itertools
 from collections import defaultdict
 import numpy as np
-import warnings
 
-from ForestElements import Tree
+from fires.ForestElements import Tree
 
 
 class LatticeForest(object):
@@ -26,8 +25,7 @@ class LatticeForest(object):
         for r in range(self.dims[0]):
             for c in range(self.dims[1]):
                 self.forest[(r, c)] = Tree(self.alpha[(r, c)], self.beta[(r, c)],
-                                           position=np.array([r, c]),
-                                           model=tree_model)
+                                           position=np.array([r, c]), model=tree_model)
 
                 if 0 <= r+1 < self.dims[0]:
                     self.forest[(r, c)].neighbors.append((r+1, c))
@@ -49,10 +47,13 @@ class LatticeForest(object):
 
     def _start_fire(self, initial_fire):
         """
-        Helper function to specify initial fire locations in the forest.
+        Helper method to specify initial fire locations in the forest.
 
-        Inputs/Outputs:
-        - initial_fire:
+        Inputs:
+         initial_fire:
+
+        Outputs:
+         None
         """
 
         if initial_fire is not None:
@@ -84,12 +85,17 @@ class LatticeForest(object):
         return
 
     def reset(self):
+        """
+        Method to reset the simulation object to its initial configuration.
+
+        Inputs/Outputs:
+         None
+        """
         self.stats = np.zeros(3).astype(np.uint32)
         self.stats[0] += self.dims[0]*self.dims[1]
 
-        for r in range(self.dims[0]):
-            for c in range(self.dims[0]):
-                self.forest[(r, c)].reset()
+        for element in self.forest.values():
+            element.reset()
 
         self._start_fire(self.initial_fire)
 
@@ -113,8 +119,7 @@ class LatticeForest(object):
 
         for f in self.fires:
             for fn in self.forest[f].neighbors:
-                if fn not in checked and \
-                        self.forest[fn].is_healthy(self.forest[fn].state):
+                if fn not in checked and self.forest[fn].is_healthy(self.forest[fn].state):
 
                     self.early_end = False
 
@@ -139,18 +144,11 @@ class LatticeForest(object):
         self.stats[0] -= len(add)
         self.stats[1] += len(add)
 
+        self.iter += 1
+
         if not self.fires:
-            self.iter += 1
             self.early_end = True
             self.end = True
             return
 
-        self.iter += 1
         return
-
-
-if __name__ == "__main__":
-    sim = LatticeForest(10)
-    for _ in range(5):
-        sim.update(defaultdict(lambda: (0, 0)))
-        print(sim.dense_state())

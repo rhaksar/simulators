@@ -2,7 +2,6 @@ import numpy as np
 import sys
 import warnings
 
-sys.path.append('..')
 from Element import Element
 
 
