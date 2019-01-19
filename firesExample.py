@@ -1,7 +1,7 @@
 from collections import defaultdict
 import numpy as np
 
-from LatticeForest import LatticeForest
+from fires.LatticeForest import LatticeForest
 
 if __name__ == "__main__":
     dimension = 25
