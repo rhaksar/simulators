@@ -18,8 +18,9 @@ class LatticeForest(object):
         self.stats = np.zeros(3).astype(np.uint32)
         self.stats[0] += self.dims[0]*self.dims[1]
 
-        if rng is not None:
-            np.random.seed(rng)
+        self.rng = rng
+        if self.rng is not None:
+            np.random.seed(self.rng)
 
         self.forest = dict()
         for r in range(self.dims[0]):
@@ -98,6 +99,8 @@ class LatticeForest(object):
             element.reset()
 
         self._start_fire(self.initial_fire)
+        if self.rng is not None:
+            np.random.seed(self.rng)
 
         self.end = False
         self.early_end = False
