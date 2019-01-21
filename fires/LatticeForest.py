@@ -11,8 +11,10 @@ class LatticeForest(object):
                  alpha=None, beta=None, tree_model='exponential'):
 
         self.dims = (dimension, dimension) if isinstance(dimension, int) else dimension
-
-        self.alpha = defaultdict(lambda: 0.2763) if alpha is None else alpha
+        if tree_model == 'exponential':
+            self.alpha = defaultdict(lambda: 0.2763) if alpha is None else alpha
+        elif tree_model == 'linear':
+            self.alpha = defaultdict(lambda: 0.2) if alpha is None else alpha
         self.beta = defaultdict(lambda: np.exp(-1/10)) if beta is None else beta
 
         self.stats = np.zeros(3).astype(np.uint32)
@@ -98,6 +100,7 @@ class LatticeForest(object):
         for element in self.forest.values():
             element.reset()
 
+        self.iter = 0
         self._start_fire(self.initial_fire)
         if self.rng is not None:
             np.random.seed(self.rng)
