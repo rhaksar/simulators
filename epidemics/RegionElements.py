@@ -4,7 +4,7 @@ from Element import Element
 
 
 class Region(Element):
-    def __init__(self, eta, name=None, position=None,
+    def __init__(self, eta, name=None, position=None, numeric_id=None,
                  model='exponential'):
         Element.__init__(self)
 
@@ -18,6 +18,7 @@ class Region(Element):
                             self.infected,
                             self.immune]
 
+        self.numeric_id = numeric_id
         self.name = name
         self.position = position
 

@@ -17,9 +17,9 @@ class WestAfrica(object):
 
         self.group = dict()
         self.counter = dict()
-        for name in graph.keys():
-            self.group[name] = Region(self.eta[name], name=name,
-                                      position=graph[name]['pos'], model=region_model)
+        for idx, name in enumerate(graph.keys()):
+            self.group[name] = Region(self.eta[name], name=name, position=graph[name]['pos'],
+                                      numeric_id=idx, model=region_model)
             self.group[name].neighbors = graph[name]['edges']
             self.counter[name] = 0
 
