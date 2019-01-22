@@ -98,7 +98,7 @@ class Tree(Element):
 
     def dynamics_linear(self, state_and_next_state, control=(0, 0)):
         """
-        Implementation of transition distribution. The transition from healty to on fire
+        Implementation of transition distribution. The transition from healthy to on fire
         is a linear function of the number of neighbors on fire.
         """
 
