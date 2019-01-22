@@ -3,12 +3,27 @@ from collections import defaultdict
 import numpy as np
 
 from fires.ForestElements import Tree
+from Simulator import Simulator
 
 
-class LatticeForest(object):
-
+class LatticeForest(Simulator):
+    """
+    A simulator for a forest fire using a discrete probabilistic lattice model.
+    """
     def __init__(self, dimension, rng=None, initial_fire=None,
                  alpha=None, beta=None, tree_model='exponential'):
+        """
+        Initializes a simulation object. Each element is a Tree with a (row, col) position.
+
+        :param dimension: size of forest, integer or (height, width)
+                          if an integer, the forest is square
+        :param rng: random number generator seed for deterministic sampling
+        :param initial_fire: collection of (row, col) coordinates describing positions of initial fires
+        :param alpha: fire propagation parameter, as a dictionary with (row, col) as keys
+        :param beta: fire persistence parameter, as a dictionary with (row, col) as keys)
+        :param tree_model: simulation model for Tree elements, either 'linear' or 'exponential'
+        """
+        Simulator.__init__(self)
 
         self.dims = (dimension, dimension) if isinstance(dimension, int) else dimension
         if tree_model == 'exponential':
@@ -17,30 +32,35 @@ class LatticeForest(object):
             self.alpha = defaultdict(lambda: 0.2) if alpha is None else alpha
         self.beta = defaultdict(lambda: np.exp(-1/10)) if beta is None else beta
 
+        # statistics for the simulation: number of [healthy, fire, burnt] trees
         self.stats = np.zeros(3).astype(np.uint32)
         self.stats[0] += self.dims[0]*self.dims[1]
 
+        # deterministic sampling
         self.rng = rng
         if self.rng is not None:
             np.random.seed(self.rng)
 
-        self.forest = dict()
+        # the forest is a group of Trees
+        self.group = dict()
         for r in range(self.dims[0]):
             for c in range(self.dims[1]):
-                self.forest[(r, c)] = Tree(self.alpha[(r, c)], self.beta[(r, c)],
-                                           position=np.array([r, c]), model=tree_model)
+                self.group[(r, c)] = Tree(self.alpha[(r, c)], self.beta[(r, c)], position=np.array([r, c]),
+                                          numeric_id=r*self.dims[1]+c, model=tree_model)
 
+                # neighbors are adjacent Trees on the lattice
                 if 0 <= r+1 < self.dims[0]:
-                    self.forest[(r, c)].neighbors.append((r+1, c))
+                    self.group[(r, c)].neighbors.append((r+1, c))
                 if 0 <= r-1 < self.dims[0]:
-                    self.forest[(r, c)].neighbors.append((r-1, c))
+                    self.group[(r, c)].neighbors.append((r-1, c))
                 if 0 <= c+1 < self.dims[1]:
-                    self.forest[(r, c)].neighbors.append((r, c+1))
+                    self.group[(r, c)].neighbors.append((r, c+1))
                 if 0 <= c-1 < self.dims[1]:
-                    self.forest[(r, c)].neighbors.append((r, c-1))
+                    self.group[(r, c)].neighbors.append((r, c-1))
 
+        # start initial fire
         self.iter = 0
-        self.fires = []
+        self.fires = []  # list containing (row, col) positions corresponding to Trees on fire
         self.initial_fire = initial_fire
         self._start_fire(self.initial_fire)
 
@@ -48,21 +68,15 @@ class LatticeForest(object):
         self.early_end = False
         return
 
-    def _start_fire(self, initial_fire):
+    def _start_fire(self, initial_fire=None):
         """
         Helper method to specify initial fire locations in the forest.
-
-        Inputs:
-         initial_fire:
-
-        Outputs:
-         None
         """
-
+        # apply initial condition if specified
         if initial_fire is not None:
             self.fires = initial_fire
             for p in initial_fire:
-                self.forest[p].set_on_fire()
+                self.group[p].set_on_fire()
 
             self.stats[0] -= len(initial_fire)
             self.stats[1] += len(initial_fire)
@@ -81,7 +95,7 @@ class LatticeForest(object):
         for (dr, dc) in deltas:
             r, c = r_center+dr, c_center+dc
             self.fires.append((r, c))
-            self.forest[(r, c)].set_on_fire()
+            self.group[(r, c)].set_on_fire()
 
         self.stats[0] -= len(self.fires)
         self.stats[1] += len(self.fires)
@@ -89,17 +103,17 @@ class LatticeForest(object):
 
     def reset(self):
         """
-        Method to reset the simulation object to its initial configuration.
-
-        Inputs/Outputs:
-         None
+        Reset the simulation object to its initial configuration.
         """
+        # reset statistics
         self.stats = np.zeros(3).astype(np.uint32)
         self.stats[0] += self.dims[0]*self.dims[1]
 
-        for element in self.forest.values():
+        # reset elements
+        for element in self.group.values():
             element.reset()
 
+        # reset to initial condition
         self.iter = 0
         self._start_fire(self.initial_fire)
         if self.rng is not None:
@@ -110,42 +124,70 @@ class LatticeForest(object):
         return
 
     def dense_state(self):
-        return np.array([[self.forest[(r, c)].state for c in range(self.dims[1])]
+        """
+        Creates a representation of the state of each Tree.
+
+        :return: 2D numpy array where each position (row, col) corresponds to a Tree state
+        """
+        return np.array([[self.group[(r, c)].state for c in range(self.dims[1])]
                          for r in range(self.dims[0])])
 
-    def update(self, control):
+    def update(self, control=None):
+        """
+        Update the simulator one time step.
+
+        :param control: collection to map (row, col) to control for each Tree,
+                        which is a tuple of (delta_alpha, delta_beta)
+        """
         if self.end:
             print("fire extinguished")
             return
 
+        if control is None:
+            control = defaultdict(lambda: (0, 0))
+
+        # assume that the fire cannot spread further this step,
+        # which occurs when no healthy Trees have a neighbor that is on fire
         self.early_end = True
 
+        # list of (row, col) positions corresponding to Trees caught on fire this time step
         add = []
+        # list of (row, col) positions corresponding to healthy Trees that have been sampled to determine
+        # if they will catch on fire
         checked = []
 
+        # fire spreading check:
+        #   iterate over current fires, find their neighbors that are healthy, and sample
+        #   to determine if the healthy Tree catches on fire
+        # all other Tree states will not change
         for f in self.fires:
-            for fn in self.forest[f].neighbors:
-                if fn not in checked and self.forest[fn].is_healthy(self.forest[fn].state):
+            for fn in self.group[f].neighbors:
+                if fn not in checked and self.group[fn].is_healthy(self.group[fn].state):
 
                     self.early_end = False
 
-                    self.forest[fn].next(self.forest, control[fn])
-                    if self.forest[fn].is_on_fire(self.forest[fn].next_state):
+                    # calculate next state
+                    self.group[fn].next(self.group, control[fn])
+                    if self.group[fn].is_on_fire(self.group[fn].next_state):
                         add.append(fn)
 
                     checked.append(fn)
 
-            self.forest[f].next(self.forest, control[f])
-            if self.forest[f].is_burnt(self.forest[f].next_state):
+            # determine if the current Tree on fire will extinguish this time step
+            self.group[f].next(self.group, control[f])
+            if self.group[f].is_burnt(self.group[f].next_state):
                 self.stats[1] -= 1
                 self.stats[2] += 1
 
-        for element in self.forest.values():
+        # apply next state to all elements
+        for element in self.group.values():
             element.update()
 
+        # retain Trees that are still on fire
         self.fires = [f for f in self.fires
-                      if self.forest[f].is_on_fire(self.forest[f].state)]
+                      if self.group[f].is_on_fire(self.group[f].state)]
 
+        # add Trees that caught on fire
         self.fires.extend(add)
         self.stats[0] -= len(add)
         self.stats[1] += len(add)
