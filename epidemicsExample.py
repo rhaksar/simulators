@@ -6,7 +6,7 @@ from epidemics.WestAfrica import WestAfrica
 
 
 if __name__ == '__main__':
-    # import grpah data
+    # import graph data
     file = open('west_africa_graph.pkl', 'rb')
     graph = pickle.load(file)
     file.close()
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # specify initial outbreak location
     outbreak = {('guinea', 'gueckedou'): 1}
 
-    # instatiate simulation object
+    # instantiate simulation object
     sim = WestAfrica(graph, outbreak)
 
     # step forward
