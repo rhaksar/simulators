@@ -4,25 +4,24 @@ import pickle
 
 from epidemics.WestAfrica import WestAfrica
 
-handle = open('west_africa_graph.pkl', 'rb')
-graph = pickle.load(handle)
-handle.close()
 
-control = defaultdict(lambda: (0, 0))
-outbreak = {('guinea', 'gueckedou'): 1}
+if __name__ == '__main__':
+    # import grpah data
+    file = open('west_africa_graph.pkl', 'rb')
+    graph = pickle.load(file)
+    file.close()
 
-sim = WestAfrica(graph, outbreak)
+    # specify initial outbreak location
+    outbreak = {('guinea', 'gueckedou'): 1}
 
-for _ in range(50):
-    sim.update(control)
+    # instatiate simulation object
+    sim = WestAfrica(graph, outbreak)
 
-values = []
-for name in sim.group.keys():
-    print(name, sim.group[name].state, sim.counter[name])
-    values.append(sim.counter[name])
-print(np.amin(values))
-print(np.mean(values))
-print(np.amax(values))
-print(np.std(values))
+    # step forward
+    for _ in range(75):
+        sim.update()
 
-print()
+    # print state
+    state = sim.dense_state()
+    for name in state:
+        print('name: %s, state: %d' % (name, state[name]))
