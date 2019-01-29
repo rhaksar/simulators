@@ -21,14 +21,14 @@ class WestAfrica(Simulator):
                                  Each key should return a count of how long the Region has been infected.
         :param rng: random number generator seed for deterministic sampling
         :param eta: disease propagation parameter, as a dictionary with Region name as keys
-        :param region_model: simulation model for Region elements, currently only 'exponential'
+        :param region_model: simulation model for Region elements, either 'linear' or 'exponential'
         """
         Simulator.__init__(self)
 
-        if region_model == 'exponential':
-            self.eta = defaultdict(lambda: 0.08) if eta is None else eta
-        elif region_model == 'linear':
+        if region_model == 'linear':
             self.eta = defaultdict(lambda: 0.17) if eta is None else eta
+        elif region_model == 'exponential':
+            self.eta = defaultdict(lambda: 0.08) if eta is None else eta
 
         self.dims = len(graph.keys())
         self.initial_outbreak = initial_outbreak

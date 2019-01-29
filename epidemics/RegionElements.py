@@ -86,8 +86,36 @@ class Region(Element):
             next_state - healthy/infected/immune
             control - (delta_eta, delta_nu)
         """
-        if self.model == 'exponential':
+        if self.model == 'linear':
+            return self.dynamics_linear(state_and_next_state, control)
+        elif self.model == 'exponential':
             return self.dynamics_exponential(state_and_next_state, control)
+
+    def dynamics_linear(self, state_and_next_state, control=(0, 0)):
+        state, number_infected_neighbors, next_state = state_and_next_state
+        delta_eta, delta_nu = control
+
+        if state == self.healthy:
+            if next_state == self.healthy:
+                return 1 - (self.eta - delta_eta)*number_infected_neighbors
+            elif next_state == self.infected:
+                return (self.eta - delta_eta)*number_infected_neighbors
+            else:
+                return 0
+
+        elif state == self.infected:
+            if next_state == self.healthy:
+                return 0
+            elif next_state == self.infected:
+                return 1 - delta_nu
+            else:
+                return delta_nu
+
+        else:
+            if next_state == self.immune:
+                return 1
+            else:
+                return 0
 
     def dynamics_exponential(self, state_and_next_state, control=(0, 0)):
         """
@@ -101,7 +129,7 @@ class Region(Element):
         delta_eta, delta_nu = control
 
         if state == self.healthy:
-            if next_state is self.healthy:
+            if next_state == self.healthy:
                 return (1 - self.eta + delta_eta)**number_infected_neighbors
             elif next_state == self.infected:
                 return 1 - (1 - self.eta + delta_eta)**number_infected_neighbors
