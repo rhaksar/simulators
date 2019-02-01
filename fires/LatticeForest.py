@@ -62,24 +62,24 @@ class LatticeForest(Simulator):
         self.iter = 0
         self.fires = []  # list containing (row, col) positions corresponding to Trees on fire
         self.initial_fire = initial_fire
-        self._start_fire(self.initial_fire)
+        self._start_fire()
 
         self.end = False
         self.early_end = False
         return
 
-    def _start_fire(self, initial_fire=None):
+    def _start_fire(self):
         """
         Helper method to specify initial fire locations in the forest.
         """
         # apply initial condition if specified
-        if initial_fire is not None:
-            self.fires = initial_fire
-            for p in initial_fire:
+        if self.initial_fire is not None:
+            self.fires = self.initial_fire
+            for p in self.initial_fire:
                 self.group[p].set_on_fire()
 
-            self.stats[0] -= len(initial_fire)
-            self.stats[1] += len(initial_fire)
+            self.stats[0] -= len(self.initial_fire)
+            self.stats[1] += len(self.initial_fire)
 
             return
 
@@ -115,7 +115,8 @@ class LatticeForest(Simulator):
 
         # reset to initial condition
         self.iter = 0
-        self._start_fire(self.initial_fire)
+        self.fires = []
+        self._start_fire()
         if self.rng is not None:
             np.random.seed(self.rng)
 
