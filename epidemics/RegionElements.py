@@ -63,7 +63,7 @@ class Region(Element):
             # only healthy state needs information from neighbors
             number_neighbors_on_fire = None
             if self.state == self.healthy:
-                self.query_neighbors(group)
+                self.neighbors_states = self.query_neighbors(group)
                 number_neighbors_on_fire = self.neighbors_states.count(True)
 
             # calculate transition probability and sample
@@ -76,8 +76,8 @@ class Region(Element):
         Determine whether or not neighbors are infected.
         Supported neighbor types are defined by self.neighbors_types
         """
-        self.neighbors_states = [group[j].is_infected(group[j].state) for j in self.neighbors
-                                 if any(isinstance(group[j], t) for t in self.neighbors_types)]
+        return [group[j].is_infected(group[j].state) for j in self.neighbors
+                if any(isinstance(group[j], t) for t in self.neighbors_types)]
 
     def dynamics(self, state_and_next_state, control=(0, 0)):
         """

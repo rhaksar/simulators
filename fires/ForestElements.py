@@ -67,7 +67,7 @@ class Tree(Element):
             # Only the healthy state needs to know information from the neighbors
             number_neighbors_on_fire = None
             if self.state == self.healthy:
-                self.query_neighbors(forest)
+                self.neighbors_states = self.query_neighbors(forest)
                 number_neighbors_on_fire = self.neighbors_states.count(True)
 
             # calculate transition probability and sample
@@ -81,8 +81,8 @@ class Tree(Element):
         Determine how many neighboring Elements are on fire.
         Supported neighbor types are defined by self.neighbors_types.
         """
-        self.neighbors_states = [forest[j].is_on_fire(forest[j].state) for j in self.neighbors
-                                 if any(isinstance(forest[j], t) for t in self.neighbors_types)]
+        return [forest[j].is_on_fire(forest[j].state) for j in self.neighbors
+                if any(isinstance(forest[j], t) for t in self.neighbors_types)]
 
     def dynamics(self, state_and_next_state, control=(0, 0)):
         """
