@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-import warnings
 
 from Element import Element
 
@@ -172,6 +170,9 @@ class Tree(Element):
 
 
 class SimpleUrban(Element):
+    """
+    Implementation of an element representing urban areas. Dynamics are based on the Tree element.
+    """
 
     def __init__(self, alpha, beta, position=None, numeric_id=None):
         Element.__init__(self)
@@ -193,7 +194,7 @@ class SimpleUrban(Element):
         self.position = position
         self.numeric_id = numeric_id
 
-        # model type and parameters
+        # model parameters
         self.alpha = alpha
         self.beta = beta
 
@@ -204,6 +205,9 @@ class SimpleUrban(Element):
         return
 
     def reset(self):
+        """
+        Reset element to initial state.
+        """
         self.state = self.healthy
         self.next_state = self.state
         return
@@ -234,7 +238,6 @@ class SimpleUrban(Element):
             # calculate transition probability and sample
             transition_p = [self.dynamics((self.state, number_neighbors_on_fire, ns), control)
                             for ns in self.state_space]
-            print(self.position, self.state, control, transition_p)
             self.next_state = np.random.choice(self.state_space, p=transition_p)
 
         return
@@ -248,6 +251,15 @@ class SimpleUrban(Element):
                 if any(isinstance(forest[j], t) for t in self.neighbors_types)]
 
     def dynamics(self, state_and_next_state, control=(0, 0)):
+        """
+        Calculate a transition probability:
+            state - healthy/on_fire/burnt/removed, number of neighbors on fire
+            next_state - healthy/on_fire/burnt/removed
+            control - (delta_alpha, delta_beta)
+
+            Note that applying a delta_alpha represents removing the urban element from the lattice.
+            This corresponds to performing a controlled burn or razing structures to prevent the spread of fire.
+        """
 
         state, number_neighbors_on_fire, next_state = state_and_next_state
         delta_alpha, delta_beta = control
