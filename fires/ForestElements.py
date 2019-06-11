@@ -5,7 +5,7 @@ from Element import Element
 
 class Tree(Element):
     """
-    Implmentation of a simple Tree simulation object for simulating a forest fire.
+    Implementation of a simple Tree simulation object for simulating a forest fire.
     """
     def __init__(self, alpha, beta, position=None, numeric_id=None, model='exponential'):
         Element.__init__(self)
