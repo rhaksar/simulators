@@ -52,7 +52,7 @@ class Tree(Element):
         self.state = self.next_state
         return
 
-    def next(self, forest, control=(0, 0)):
+    def next(self, forest, control=(0, 0), random_state=None):
         """
         Sample, but don't apply, the next state.
         This makes implementation of a Markov process simpler.
@@ -69,8 +69,15 @@ class Tree(Element):
 
             # calculate transition probability and sample
             transition_p = self.dynamics((self.state, number_neighbors_on_fire, self.state+1), control)
-            if np.random.rand() < transition_p:
+
+            if random_state is None:
+                random_value = np.random.rand()
+            else:
+                random_value = random_state.rand()
+
+            if random_value < transition_p:
                 self.next_state = self.state + 1
+
         return
 
     def query_neighbors(self, forest):
@@ -220,7 +227,7 @@ class SimpleUrban(Element):
         self.state = self.next_state
         return
 
-    def next(self, forest, control=(0, 0)):
+    def next(self, forest, control=(0, 0), random_state=None):
         """
         Sample, but don't apply, the next state.
         This makes implementation of a Markov process simpler.
@@ -238,7 +245,10 @@ class SimpleUrban(Element):
             # calculate transition probability and sample
             transition_p = [self.dynamics((self.state, number_neighbors_on_fire, ns), control)
                             for ns in self.state_space]
-            self.next_state = np.random.choice(self.state_space, p=transition_p)
+            if random_state is None:
+                self.next_state = np.random.choice(self.state_space, p=transition_p)
+            else:
+                self.next_state = random_state.choice(self.state_space, p=transition_p)
 
         return
 

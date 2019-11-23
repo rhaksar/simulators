@@ -38,8 +38,7 @@ class LatticeForest(Simulator):
 
         # deterministic sampling
         self.rng = rng
-        if self.rng is not None:
-            np.random.seed(self.rng)
+        self.random_state = np.random.RandomState(self.rng)
 
         # the forest is a group of Trees
         self.group = dict()
@@ -117,8 +116,7 @@ class LatticeForest(Simulator):
         self.iter = 0
         self.fires = []
         self._start_fire()
-        if self.rng is not None:
-            np.random.seed(self.rng)
+        self.random_state = np.random.RandomState(self.rng)
 
         self.end = False
         self.early_end = False
@@ -168,14 +166,14 @@ class LatticeForest(Simulator):
                     self.early_end = False
 
                     # calculate next state
-                    self.group[fn].next(self.group, control[fn])
+                    self.group[fn].next(self.group, control[fn], self.random_state)
                     if self.group[fn].is_on_fire(self.group[fn].next_state):
                         add.append(fn)
 
                     checked.append(fn)
 
             # determine if the current Tree on fire will extinguish this time step
-            self.group[f].next(self.group, control[f])
+            self.group[f].next(self.group, control[f], self.random_state)
             if self.group[f].is_burnt(self.group[f].next_state):
                 self.stats[1] -= 1
                 self.stats[2] += 1

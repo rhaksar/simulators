@@ -26,8 +26,7 @@ class UrbanForest(Simulator):
         self.beta = defaultdict(lambda: np.exp(-1/10)) if beta is None else beta
 
         self.rng = rng
-        if self.rng is not None:
-            np.random.seed(self.rng)
+        self.random_state = np.random.RandomState(self.rng)
 
         self.urban = []
         self.urban_width = urban_width
@@ -135,8 +134,7 @@ class UrbanForest(Simulator):
         self.iter = 0
         self.fires = []
         self._start_fire()
-        if self.rng is not None:
-            np.random.seed(self.rng)
+        self.random_state = np.random.RandomState(self.rng)
 
         self.end = False
         self.early_end = False
@@ -179,7 +177,7 @@ class UrbanForest(Simulator):
         do_not_check = []
         for u in self.urban:
             if self.group[u].is_healthy(self.group[u].state):
-                self.group[u].next(self.group, control[u])
+                self.group[u].next(self.group, control[u], self.random_state)
 
                 if self.group[u].is_removed(self.group[u].next_state):
                     self.stats_urban[0] -= 1
@@ -199,14 +197,14 @@ class UrbanForest(Simulator):
                     self.early_end = False
 
                     # calculate next state
-                    self.group[fn].next(self.group, control[fn])
+                    self.group[fn].next(self.group, control[fn], self.random_state)
                     if self.group[fn].is_on_fire(self.group[fn].next_state):
                         add.append(fn)
 
                     checked.append(fn)
 
             # determine if the current element on fire will extinguish this time step
-            self.group[f].next(self.group, control[f])
+            self.group[f].next(self.group, control[f], self.random_state)
             if self.group[f].is_burnt(self.group[f].next_state):
                 if isinstance(self.group[f], Tree):
                     self.stats_trees[1] -= 1
