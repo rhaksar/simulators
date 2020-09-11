@@ -1,4 +1,4 @@
-from fires.LatticeForest import LatticeForest
+from simulators.fires.LatticeForest import LatticeForest
 
 if __name__ == "__main__":
     # forest lattice size

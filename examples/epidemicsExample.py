@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import pkgutil
 
-from epidemics.WestAfrica import WestAfrica
+from simulators.epidemics.WestAfrica import WestAfrica
 
 
 if __name__ == '__main__':
