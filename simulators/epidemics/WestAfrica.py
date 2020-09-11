@@ -1,8 +1,8 @@
 from collections import defaultdict
 import numpy as np
 
-from epidemics.RegionElements import Region
-from Simulator import Simulator
+from simulators.epidemics.RegionElements import Region
+from simulators.Simulator import Simulator
 
 
 class WestAfrica(Simulator):

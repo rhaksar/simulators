@@ -1,14 +1,19 @@
 # simulators
 
-A common repository for process simulators and related utilities to support various research projects. 
+A common repository for simulators for processes modeled by graph-based Markov models and related utilities to 
+support various research projects. 
 
-### Directories:
+## Installation
+
+Clone this repository and run `pip3 install -e .` in the directory in order to install the package and access the
+simulators system-wide.
+
+## Directories:
 - `epidemics`: Simulate a disease epidemic.
 - `fires`: Simulate a forest fire.
 
-### Files:
+## Files:
 - `Element.py`: Template for simulation elements. 
 - `Simulator.py`: Template for simulators. 
-- `epidemicsExample.py`: Example use of the West Africa Ebola outbreak simulator.
+- `epidemicsExample.py`: Example use of the 2014 West Africa Ebola outbreak simulator.
 - `firesExample.py`: Example use of the lattice-based forest. 
-- `west_africa_graph.pkl`: Graph description of the regions affected by the Ebola outbreak with edges describing major transportation routes between regions.
