@@ -1,15 +1,19 @@
 from collections import defaultdict
 import numpy as np
 import pickle
+import pkgutil
 
-from epidemics.WestAfrica import WestAfrica
+from simulators.epidemics.WestAfrica import WestAfrica
 
 
 if __name__ == '__main__':
     # import graph data
-    file = open('west_africa_graph.pkl', 'rb')
-    graph = pickle.load(file)
-    file.close()
+    # file = open('west_africa_graph.pkl', 'rb')
+    # graph = pickle.load(file)
+    # file.close()
+
+    data = pkgutil.get_data('simulators', 'epidemics/west_africa_graph.pkl')
+    graph = pickle.loads(data)
 
     # specify initial outbreak location
     outbreak = {('guinea', 'gueckedou'): 1}

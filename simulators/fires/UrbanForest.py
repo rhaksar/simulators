@@ -2,8 +2,8 @@ from collections import defaultdict
 import itertools
 import numpy as np
 
-from fires.ForestElements import Tree, SimpleUrban
-from Simulator import Simulator
+from simulators.fires.ForestElements import Tree, SimpleUrban
+from simulators.Simulator import Simulator
 
 
 class UrbanForest(Simulator):

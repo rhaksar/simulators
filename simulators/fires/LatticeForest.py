@@ -2,8 +2,8 @@ import itertools
 from collections import defaultdict
 import numpy as np
 
-from fires.ForestElements import Tree
-from Simulator import Simulator
+from simulators.fires.ForestElements import Tree
+from simulators.Simulator import Simulator
 
 
 class LatticeForest(Simulator):
