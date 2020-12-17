@@ -4,12 +4,12 @@ A common repository for simulators for processes modeled by graph-based Markov m
 various research projects. 
 
 Current projects using this repository:
-- [ddrl-firefighting](github.com/rhaksar/ddrl-firefighting): Deep reinforcement learning approach for coordinating a 
-  team of autonomous aerial vehicles to fight a forest wildfire.
-- [control-large-GMDPs](github.com/rhaksar/control-large-GMDPs): Approximate dynamic programming approach for computing 
-  constrained policies to fight a forest wildfire and to limit the outbreak of a virus.
-- [control-percolation](github.com/rhaksar/control-percolation): Percolation-based approach for computing constrained 
-  policies to fight a forest wildfire. 
+- [ddrl-firefighting](https://github.com/rhaksar/ddrl-firefighting): Deep reinforcement learning approach for 
+  coordinating a team of autonomous aerial vehicles to fight a forest wildfire.
+- [control-large-GMDPs](https://github.com/rhaksar/control-large-GMDPs): Approximate dynamic programming approach for 
+  computing constrained policies to fight a forest wildfire and to limit the outbreak of a virus.
+- [control-percolation](https://github.com/rhaksar/control-percolation): Percolation-based approach for computing 
+  constrained policies to fight a forest wildfire. 
 
 ## Installation
 
