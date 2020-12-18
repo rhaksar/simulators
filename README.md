@@ -10,6 +10,8 @@ Current projects using this repository:
   computing constrained policies to fight a forest wildfire and to limit the outbreak of a virus.
 - [control-percolation](https://github.com/rhaksar/control-percolation): Percolation-based approach for computing 
   constrained policies to fight a forest wildfire. 
+- [filter-large-GHMMs](https://github.com/rhaksar/filter-large-GMDPs): Variational approach for fast online filtering
+  of a forest wildfire and a virus outbreak. 
 
 ## Installation
 
