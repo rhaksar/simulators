@@ -1,5 +1,7 @@
 from collections import defaultdict
 import numpy as np
+import pickle
+import pkgutil
 
 from simulators.epidemics.RegionElements import Region
 from simulators.Simulator import Simulator
@@ -9,14 +11,11 @@ class WestAfrica(Simulator):
     """
     A simulator for the 2014 Ebola outbreak in West Africa.
     """
-    def __init__(self, graph, initial_outbreak, rng=None,
+    def __init__(self, initial_outbreak, rng=None,
                  eta=None, region_model='exponential'):
         """
         Initializes a simulation object. Each element is a Region.
 
-        :param graph: dictionary describing the connections between Regions. Keys should be a region name (string).
-                      Each key should reference a dictionary with keys 'edges' (neighbors)
-                      and 'pos' (position for visualization)
         :param initial_outbreak: dictionary describing the Regions that are initially infected.
                                  Each key should return a count of how long the Region has been infected.
         :param rng: random number generator seed for deterministic sampling
@@ -29,6 +28,13 @@ class WestAfrica(Simulator):
             self.eta = defaultdict(lambda: 0.17) if eta is None else eta
         elif region_model == 'exponential':
             self.eta = defaultdict(lambda: 0.08) if eta is None else eta
+
+        # load dictionary describing the connections between Regions. Keys are region names (string) and refer to a
+        # dictionary:
+        #      name (string) : {'edges': list of names (strings) indicating Region connections,
+        #                       'pos': tuple, for visualization}
+        data = pkgutil.get_data('simulators', 'epidemics/west_africa_graph.pkl')
+        graph = pickle.loads(data)
 
         self.dims = len(graph.keys())
         self.initial_outbreak = initial_outbreak
