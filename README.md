@@ -12,6 +12,8 @@ Current projects using this repository:
   constrained policies to fight a forest wildfire. 
 - [filter-large-GHMMs](https://github.com/rhaksar/filter-large-GMDPs): Variational approach for fast online filtering
   of a forest wildfire and a virus outbreak. 
+- [distributed-sensing](https://github.com/rhaksar/distributed-sensing): Coordination framework for multi-agent 
+  persistent coverage with limited communication.
 
 ## Installation
 
